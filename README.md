@@ -22,6 +22,7 @@ Bennium is a lightweight, customizable web browser built on Electron and Chromiu
 1. **Clone the Repository**:
     ```bash
     git clone https://github.com/mrsirfloppa/bennium.git
+    then extract the file
     cd bennium
     ```
 
