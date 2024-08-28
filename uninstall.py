@@ -1,44 +1,51 @@
 import os
-import subprocess
-import sys
+import shutil
 
-def log_info(message):
-    print(f"[INFO] {message}")
-
-def log_error(message):
-    print(f"[ERROR] {message}")
-    sys.exit(1)
-
-def remove_bennium_bat():
-    bat_path = os.path.join(os.getcwd(), "bennium.bat")
-    if os.path.exists(bat_path):
-        os.remove(bat_path)
-        if not os.path.exists(bat_path):
-            log_info("bennium.bat removed successfully.")
-        else:
-            log_error("Failed to remove bennium.bat.")
+def remove_bat_file():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    bat_file = os.path.join(current_dir, 'bennium.bat')
+    if os.path.exists(bat_file):
+        os.remove(bat_file)
+        print(f"[INFO] Removed {bat_file}")
     else:
-        log_info("bennium.bat does not exist, nothing to remove.")
+        print(f"[INFO] {bat_file} does not exist.")
 
 def remove_from_path():
-    current_dir = os.getcwd()
-    path = os.environ['PATH']
+    print("[INFO] Removing Bennium from system PATH...")
+    bennium_path = os.path.dirname(os.path.abspath(__file__))
+    
+    # Get the current PATH environment variable
+    path_variable = os.environ.get('PATH', '')
 
-    if current_dir in path:
-        new_path = ";".join([p for p in path.split(";") if p != current_dir])
-        log_info("Removing the current directory from PATH...")
-        subprocess.run(f'setx PATH "{new_path}"', shell=True)
-        log_info("Successfully removed the directory from PATH.")
+    if bennium_path in path_variable:
+        # Replace the Bennium path in the PATH variable with an empty string
+        new_path_variable = path_variable.replace(bennium_path, '')
+        
+        # Update the PATH environment variable
+        os.environ['PATH'] = new_path_variable
+        
+        # Update the PATH for the current session (non-persistent)
+        os.system(f'setx PATH "{new_path_variable.strip(";")}"')
+        
+        print(f"[INFO] Bennium path removed from system PATH.")
     else:
-        log_info("Current directory is not in PATH, nothing to remove.")
+        print(f"[INFO] Bennium path was not found in system PATH.")
+
+def remove_node_modules():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    node_modules_dir = os.path.join(current_dir, 'node_modules')
+    if os.path.exists(node_modules_dir):
+        shutil.rmtree(node_modules_dir)
+        print(f"[INFO] Removed {node_modules_dir}")
+    else:
+        print(f"[INFO] {node_modules_dir} does not exist.")
 
 def main():
-    remove_bennium_bat()
-
-    # Optionally remove the directory from PATH
+    print("[INFO] Uninstalling Bennium...")
+    remove_bat_file()
     remove_from_path()
-
-    log_info("Uninstallation complete.")
+    remove_node_modules()
+    print("[INFO] Uninstallation complete.")
 
 if __name__ == "__main__":
     main()
